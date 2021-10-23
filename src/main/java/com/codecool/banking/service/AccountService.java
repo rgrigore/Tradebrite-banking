@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountService {
@@ -42,15 +44,11 @@ public class AccountService {
     public void depositToAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
-        String[] balance = account.getBalance().split("\\.");
-        String[] amount = amountString.split("\\.");
+        BigDecimal balance = new BigDecimal(account.getBalance());
+        BigDecimal amount = new BigDecimal(amountString);
 
-        String newBalance = String.format("%d.%s",
-                Long.parseLong(balance[0]) + Long.parseLong(amount[0]),
-                amount.length == 2 ?
-                        Long.parseLong(balance[1]) + Long.parseLong(amount[1]) :
-                        balance[1]
-        );
+        String newBalance = balance.add(amount).stripTrailingZeros().toString();
+
 
         account.setBalance(newBalance);
         accountRepository.save(account);
