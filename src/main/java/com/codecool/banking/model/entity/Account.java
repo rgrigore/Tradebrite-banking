@@ -1,20 +1,26 @@
 package com.codecool.banking.model.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name = "account")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Account {
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
     private String id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
     @Column(name = "balance", nullable = false)
