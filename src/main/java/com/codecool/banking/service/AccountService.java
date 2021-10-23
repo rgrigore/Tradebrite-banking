@@ -9,14 +9,21 @@ import com.codecool.banking.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final MathUtils mathUtils;
+
+
+    public Account getAccount(String accountId) {
+        return accountRepository.findById(accountId).orElseThrow(() ->
+                new AccountNotFoundException(String.format("Account with id: <%s> not found.", accountId))
+        );
+    }
 
     public String openAccount(NewAccountDTO newAccount) {
         try {
@@ -44,7 +51,7 @@ public class AccountService {
     public void depositToAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
-        String newBalance = addStrings(account.getBalance(), amountString);
+        String newBalance = mathUtils.addStrings(account.getBalance(), amountString);
 
         account.setBalance(newBalance);
         accountRepository.save(account);
@@ -53,23 +60,15 @@ public class AccountService {
     public void withdrawFromAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
-        String newBalance = subtractStrings(account.getBalance(), amountString);
+        String newBalance = mathUtils.subtractStrings(account.getBalance(), amountString);
 
         account.setBalance(newBalance);
         accountRepository.save(account);
     }
 
-    public Account getAccount(String accountId) {
-        return accountRepository.findById(accountId).orElseThrow(() ->
-                new AccountNotFoundException(String.format("Account with id: <%s> not found.", accountId))
-        );
-    }
-
-    public String addStrings(String s1, String s2) {
-        return (new BigDecimal(s1)).add(new BigDecimal(s2)).stripTrailingZeros().toString();
-    }
-
-    public String subtractStrings(String s1, String s2) {
-        return (new BigDecimal(s1)).subtract(new BigDecimal(s2)).stripTrailingZeros().toString();
+    @Transactional
+    public void transferBetweenAccounts(String accountId, String targetId, String amount) {
+        withdrawFromAccount(accountId, amount);
+        depositToAccount(targetId, amount);
     }
 }

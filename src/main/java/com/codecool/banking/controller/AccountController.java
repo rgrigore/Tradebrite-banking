@@ -33,4 +33,9 @@ public class AccountController {
     public void withdraw(@PathVariable String accountId, @PathVariable String amount) {
         accountService.withdrawFromAccount(accountId, amount);
     }
+
+    @PostMapping("/{accountId}/transfer/{targetId}/{amount}")
+    public void transfer(@PathVariable String accountId, @PathVariable String targetId, @PathVariable String amount) {
+        accountService.transferBetweenAccounts(accountId, targetId, amount);
+    }
 }
