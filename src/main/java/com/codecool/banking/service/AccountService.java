@@ -32,7 +32,7 @@ public class AccountService {
         }
     }
 
-    public AccountBalanceDTO getBalance(String accountId) {
+    public AccountBalanceDTO getBalanceForAccount(String accountId) {
         Account account = getAccount(accountId);
 
         return AccountBalanceDTO.builder()
@@ -44,11 +44,16 @@ public class AccountService {
     public void depositToAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
-        BigDecimal balance = new BigDecimal(account.getBalance());
-        BigDecimal amount = new BigDecimal(amountString);
+        String newBalance = addStrings(account.getBalance(), amountString);
 
-        String newBalance = balance.add(amount).stripTrailingZeros().toString();
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+    }
 
+    public void withdrawFromAccount(String accountId, String amountString) {
+        Account account = getAccount(accountId);
+
+        String newBalance = subtractStrings(account.getBalance(), amountString);
 
         account.setBalance(newBalance);
         accountRepository.save(account);
@@ -58,5 +63,13 @@ public class AccountService {
         return accountRepository.findById(accountId).orElseThrow(() ->
                 new AccountNotFoundException(String.format("Account with id: <%s> not found.", accountId))
         );
+    }
+
+    public String addStrings(String s1, String s2) {
+        return (new BigDecimal(s1)).add(new BigDecimal(s2)).stripTrailingZeros().toString();
+    }
+
+    public String subtractStrings(String s1, String s2) {
+        return (new BigDecimal(s1)).subtract(new BigDecimal(s2)).stripTrailingZeros().toString();
     }
 }

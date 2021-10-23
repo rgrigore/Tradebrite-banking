@@ -21,11 +21,16 @@ public class AccountController {
 
     @GetMapping("/{accountId}/balance")
     public AccountBalanceDTO accountBalance(@PathVariable String accountId) {
-        return accountService.getBalance(accountId);
+        return accountService.getBalanceForAccount(accountId);
     }
 
     @PostMapping("/{accountId}/deposit/{amount}")
     public void deposit(@PathVariable String accountId, @PathVariable String amount) {
         accountService.depositToAccount(accountId, amount);
+    }
+
+    @PostMapping("/{accountId}/withdraw/{amount}")
+    public void withdraw(@PathVariable String accountId, @PathVariable String amount) {
+        accountService.withdrawFromAccount(accountId, amount);
     }
 }
