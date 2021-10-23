@@ -20,8 +20,7 @@ public class AccountService {
         try {
             Account account = Account.builder()
                     .userId(newAccount.getUserId())
-                    .balance(0L)
-                    .balanceDecimal(0L)
+                    .balance("0.0")
                     .build();
 
             accountRepository.save(account);
@@ -32,15 +31,34 @@ public class AccountService {
     }
 
     public AccountBalanceDTO getBalance(String accountId) {
-        try {
-            Account account = accountRepository.getById(accountId);
+        Account account = getAccount(accountId);
 
-            return AccountBalanceDTO.builder()
-                    .accountId(accountId)
-                    .balance(String.format("%d.%d", account.getBalance(), account.getBalanceDecimal()))
-                    .build();
-        } catch (Exception e) {
-            throw new AccountNotFoundException(String.format("Account with id: <%s> not found", accountId), e);
-        }
+        return AccountBalanceDTO.builder()
+                .accountId(account.getId())
+                .balance(account.getBalance())
+                .build();
+    }
+
+    public void depositToAccount(String accountId, String amountString) {
+        Account account = getAccount(accountId);
+
+        String[] balance = account.getBalance().split("\\.");
+        String[] amount = amountString.split("\\.");
+
+        String newBalance = String.format("%d.%s",
+                Long.parseLong(balance[0]) + Long.parseLong(amount[0]),
+                amount.length == 2 ?
+                        Long.parseLong(balance[1]) + Long.parseLong(amount[1]) :
+                        balance[1]
+        );
+
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+    }
+
+    public Account getAccount(String accountId) {
+        return accountRepository.findById(accountId).orElseThrow(() ->
+                new AccountNotFoundException(String.format("Account with id: <%s> not found.", accountId))
+        );
     }
 }

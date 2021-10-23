@@ -24,7 +24,5 @@ public class Account {
     private String userId;
 
     @Column(name = "balance", nullable = false)
-    private Long balance;
-    @Column(name = "balance_decimal", nullable = false)
-    private Long balanceDecimal;
+    private String balance;
 }
