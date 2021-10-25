@@ -9,6 +9,7 @@ import com.codecool.banking.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -39,7 +40,7 @@ public class AccountService {
         }
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public AccountBalanceDTO getBalanceForAccount(String accountId) {
         Account account = getAccount(accountId);
 
@@ -49,7 +50,7 @@ public class AccountService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void depositToAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
@@ -58,7 +59,7 @@ public class AccountService {
         account.setBalance(newBalance);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void withdrawFromAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
@@ -67,7 +68,7 @@ public class AccountService {
         account.setBalance(newBalance);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void transferBetweenAccounts(String accountId, String targetId, String amount) {
         withdrawFromAccount(accountId, amount);
         depositToAccount(targetId, amount);
