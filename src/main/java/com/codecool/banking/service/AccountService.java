@@ -39,6 +39,7 @@ public class AccountService {
         }
     }
 
+    @Transactional
     public AccountBalanceDTO getBalanceForAccount(String accountId) {
         Account account = getAccount(accountId);
 
@@ -48,22 +49,22 @@ public class AccountService {
                 .build();
     }
 
+    @Transactional
     public void depositToAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
         String newBalance = mathUtils.addStrings(account.getBalance(), amountString);
 
         account.setBalance(newBalance);
-        accountRepository.save(account);
     }
 
+    @Transactional
     public void withdrawFromAccount(String accountId, String amountString) {
         Account account = getAccount(accountId);
 
         String newBalance = mathUtils.subtractStrings(account.getBalance(), amountString);
 
         account.setBalance(newBalance);
-        accountRepository.save(account);
     }
 
     @Transactional
